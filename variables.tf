@@ -58,7 +58,8 @@ variable "blocked_paths" {
 }
 
 variable "blocked_priority" {
-  type     = number
-  default  = 20
-  nullable = false
+  type        = number
+  default     = 20
+  nullable    = false
+  description = "Priority of the first blocked path's rule. Each further path takes the next priority"
 }
