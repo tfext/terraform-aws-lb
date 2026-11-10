@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 6.0"
+    }
+  }
+}
+
 module "aws_utils" {
   source = "github.com/tfext/terraform-aws-base"
 }
@@ -23,6 +32,8 @@ resource "aws_lb" "lb" {
   subnets              = local.subnets
   security_groups      = [aws_security_group.app_lb.id]
   preserve_host_header = true
+
+  drop_invalid_header_fields = true
 
   dynamic "access_logs" {
     for_each = local.logging

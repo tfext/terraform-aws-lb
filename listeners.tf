@@ -17,6 +17,7 @@ resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.lb.arn
   port              = local.https_port
   protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06" # TLS 1.2 and 1.3, AWS's recommended policy
   certificate_arn   = var.default_certificate_arn
 
   default_action {
@@ -30,7 +31,7 @@ resource "aws_lb_listener" "https" {
 }
 
 resource "aws_lb_listener_rule" "blocked" {
-  for_each = toset(var.blocked_paths)
+  for_each = { for i, path in var.blocked_paths : path => i }
 
   action {
     target_group_arn = ""
@@ -42,9 +43,9 @@ resource "aws_lb_listener_rule" "blocked" {
   }
 
   condition {
-    path_pattern { values = [each.value] }
+    path_pattern { values = [each.key] }
   }
 
   listener_arn = aws_lb_listener.https.arn
-  priority     = var.blocked_priority
+  priority     = var.blocked_priority + each.value # priorities are unique per listener
 }
